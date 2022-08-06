@@ -13,7 +13,7 @@ import {
   makeStyles,
   Modal,
   IconButton,
-  Box,
+  Box
 } from '@material-ui/core'
 import SendIcon from '@material-ui/icons/Send'
 import CameraIcon from '@material-ui/icons/Camera'
@@ -21,41 +21,45 @@ import EmailIcon from '@material-ui/icons/Email'
 import LockOutLinedIcon from '@material-ui/icons/LockOutlined'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
-    height: '100vh',
+    height: '100vh'
   },
   image: {
-    backgroundImage: 'url(https://source.unsplash.com/random)',
+    backgroundImage:
+      'url(https://images.unsplash.com/photo-1659705823706-5343317a7312?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHw3OXx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=60)',
     backgroundRepeat: 'no-repeat',
     backgroundColor:
       theme.palette.type === 'light'
         ? theme.palette.grey[50]
         : theme.palette.grey[900],
     backgroundSize: 'cover',
-    backgroundPosition: 'center',
+    backgroundPosition: 'center'
   },
   paper: {
     margin: theme.spacing(8, 4),
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.secondary.main
   },
   form: {
     width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(1)
   },
   submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
+    margin: theme.spacing(3, 0, 2)
+  }
 }))
 
 const Auth: React.FC = () => {
   const classes = useStyles()
+  const signInWithGoogle = async () => {
+    await auth.signInWithPopup(provider).catch(err => alert(err.message))
+  }
 
   return (
     <Grid container component="main" className={classes.root}>
@@ -100,6 +104,15 @@ const Auth: React.FC = () => {
               className={classes.submit}
             >
               Sign In
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={signInWithGoogle}
+            >
+              SignIn with google
             </Button>
           </form>
         </div>
