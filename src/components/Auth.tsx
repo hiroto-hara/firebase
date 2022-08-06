@@ -20,6 +20,7 @@ import CameraIcon from '@material-ui/icons/Camera'
 import EmailIcon from '@material-ui/icons/Email'
 import LockOutLinedIcon from '@material-ui/icons/LockOutlined'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
+import { AnyMxRecord } from 'dns'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -127,14 +128,14 @@ const Auth: React.FC = () => {
                       try {
                         await signInEmail()
                       } catch (err) {
-                        alert(err)
+                        alert(err.message)
                       }
                     }
                   : async () => {
                       try {
                         await signUpEmail()
                       } catch (err) {
-                        alert(err)
+                        alert(err.message)
                       }
                     }
               }
