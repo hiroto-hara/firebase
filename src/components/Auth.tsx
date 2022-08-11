@@ -93,7 +93,13 @@ const Auth: React.FC = () => {
         .child(fileName)
         .getDownloadURL()
     }
-    await authUser.user?.updateProfile({
+
+    if (!authUser.user) {
+      alert('ユーザーの登録に失敗しました')
+      console.error('ユーザーがいません')
+      return
+    }
+    await authUser.user.updateProfile({
       displayName: username,
       photoURL: url
     })
