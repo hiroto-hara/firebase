@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
-import styles from './Auth.module.css'
 import { useDispatch } from 'react-redux'
 import { updateUserProfile } from '../features/userSlice'
 import { auth, provider, storage } from '../firebase'
+
+import styles from './Auth.module.css'
+
 import {
   Avatar,
   Button,
@@ -145,9 +147,27 @@ const Auth: React.FC = () => {
                     setUsername(e.target.value)
                   }}
                 />
+                <Box textAlign="center">
+                  <IconButton>
+                    <label>
+                      <AccountCircleIcon
+                        fontSize="large"
+                        className={
+                          avatarImage
+                            ? styles.login_addIconLoaded
+                            : styles.login_addIcon
+                        }
+                      />
+                      <input
+                        className={styles.login_hiddenIcon}
+                        type="file"
+                        onChange={onChangeImageHandler}
+                      />
+                    </label>
+                  </IconButton>
+                </Box>
               </>
             )}
-
             <TextField
               variant="outlined"
               margin="normal"
@@ -179,6 +199,11 @@ const Auth: React.FC = () => {
               }}
             />
             <Button
+              disabled={
+                isLogin
+                  ? !email || password.length < 6
+                  : !username || !email || password.length < 6 || !avatarImage
+              }
               fullWidth
               variant="contained"
               color="primary"
