@@ -1,10 +1,12 @@
-import { Avatar } from '@material-ui/core'
-import React from 'react'
+//lib
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { selectUser } from '../features/userSlice'
-import { auth } from '../firebase'
-
+import { auth, storage, db } from '../firebase'
+//style
 import styles from './TweetInput.module.css'
+//MUI
+import { Avatar, Button, IconButton } from '@material-ui/core'
 
 const TweetInput = () => {
   const user = useSelector(selectUser)
