@@ -1,10 +1,14 @@
+//lib
 import React from 'react'
 import { auth } from '../firebase'
+//components
 import TweetInput from './TweetInput'
+//styles
+import styles from './Feed.module.css'
 
 const Feed = () => {
   return (
-    <div>
+    <div className={styles.feed}>
       Feed
       <TweetInput />
       <button onClick={() => auth.signOut()}>Logout</button>
