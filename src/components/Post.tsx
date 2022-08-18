@@ -23,6 +23,9 @@ interface PROPS {
 }
 
 const Post: React.FC<PROPS> = props => {
+  const [comment, setComment] = useState('')
+  const newComment = (e: React.FormEvent<HTMLFormElement>) => {}
+
   return (
     <div className={styles.post}>
       <div className={styles.post_avatar}>

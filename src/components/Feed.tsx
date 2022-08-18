@@ -41,7 +41,9 @@ const Feed: React.FC = () => {
   return (
     <div className={styles.feed}>
       <TweetInput />
-      {posts[0].id ? (
+      {posts.length === 0 ? (
+        123456789
+      ) : (
         <>
           {posts.map(post => (
             <Post
@@ -55,8 +57,6 @@ const Feed: React.FC = () => {
             />
           ))}
         </>
-      ) : (
-        123456789
       )}
     </div>
   )
