@@ -8,7 +8,7 @@ import { selectUser } from '../features/userSlice'
 //styles
 import styles from './Post.module.css'
 import { Avatar } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles, styled } from '@material-ui/core/styles'
 import MessageIcon from '@material-ui/icons/Message'
 import SendIcon from '@material-ui/icons/Send'
 import { PersonPinSharp } from '@material-ui/icons'
@@ -22,9 +22,62 @@ interface PROPS {
   username: string
 }
 
+interface COMMENT {
+  id: string
+  avatar: string
+  text: string
+  timestamp: any
+  username: string
+}
+
 const Post: React.FC<PROPS> = props => {
+  const user = useSelector(selectUser)
   const [comment, setComment] = useState('')
-  const newComment = (e: React.FormEvent<HTMLFormElement>) => {}
+  const [comments, setComments] = useState<COMMENT[]>([
+    {
+      id: '',
+      avatar: '',
+      text: '',
+      timestamp: null,
+      username: ''
+    }
+  ])
+
+  if (props.postId) {
+    const getComments = db
+      .collection('posts')
+      .doc(props.postId)
+      .collection('comments')
+      .orderBy('timestamp', 'desc')
+      .onSnapshot(snapshot =>
+        setComments(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            avatar: doc.data().avatar,
+            text: doc.data().text,
+            timestamp: doc.data().timestamp,
+            username: doc.data().username
+          }))
+        )
+      )
+    useEffect(() => {
+      getComments()
+    }, [props.postId])
+  }
+
+  const newComment = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    db.collection('posts')
+      .doc(props.postId)
+      .collection('comments')
+      .add({
+        avatar: user.photoUrl,
+        text: comment,
+        timestamp: firebase.firestore.Timestamp.now(),
+        username: user.displayName
+      })
+    setComment('')
+  }
 
   return (
     <div className={styles.post}>
@@ -36,9 +89,8 @@ const Post: React.FC<PROPS> = props => {
           <h3>
             <span className={styles.post_headerUser}>@{props.username}</span>
             <span className={styles.post_headerTime}>
-              {props.timestamp
-                ? new Date(props.timestamp.toDate()).toLocaleString()
-                : 123456789}
+              {props.timestamp &&
+                new Date(props.timestamp.toDate()).toLocaleString()}
             </span>
           </h3>
         </div>
@@ -51,6 +103,39 @@ const Post: React.FC<PROPS> = props => {
           <img src={props.image} alt="tweet" />
         </div>
       )}
+
+      {comments.map(com => (
+        <div key={com.id} className={styles.post_comment}>
+          <Avatar src={com.avatar} />
+          <span className={styles.post_commentUser}>@{com.username}</span>
+          <span className={styles.post_commentText}>{com.text}</span>
+          {/* <span className={styles.post_headerTime}>
+            {props.timestamp &&
+              new Date(com.timestamp.toDate()).toLocaleString()}
+          </span> */}
+        </div>
+      ))}
+
+      <form onSubmit={newComment}>
+        <div className={styles.post_form}>
+          <input
+            className={styles.post_input}
+            type="text"
+            placeholder="Add new comment..."
+            value={comment}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setComment(e.target.value)
+            }
+          />
+          <button
+            disabled={!comment}
+            className={comment ? styles.post_button : styles.post_buttonDisable}
+            type="submit"
+          >
+            <SendIcon className={styles.post_sendIcon} />
+          </button>
+        </div>
+      </form>
     </div>
   )
 }
