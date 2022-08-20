@@ -57,7 +57,7 @@ const TweetInput: React.FC = () => {
         avatar: user.photoUrl,
         image: '',
         text: tweetMsg,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        timestamp: firebase.firestore.Timestamp.now(),
         username: user.displayName
       })
     }
