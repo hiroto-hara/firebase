@@ -30,8 +30,17 @@ interface COMMENT {
   username: string
 }
 
+const useStyles = makeStyles(theme => ({
+  small: {
+    width: theme.spacing(3),
+    height: theme.spacing(3),
+    marginRight: theme.spacing(1)
+  }
+}))
+
 const Post: React.FC<PROPS> = props => {
   const user = useSelector(selectUser)
+  const classes = useStyles()
   const [comment, setComment] = useState('')
   const [comments, setComments] = useState<COMMENT[]>([
     {
@@ -42,6 +51,7 @@ const Post: React.FC<PROPS> = props => {
       username: ''
     }
   ])
+  const [openComments, setOpenComments] = useState(false)
 
   //   if (!props.postId) {
   //     console.log('投稿がありません')
@@ -93,57 +103,69 @@ const Post: React.FC<PROPS> = props => {
       <div className={styles.post_avatar}>
         <Avatar src={props.avatar} />
       </div>
-      <div>
-        <div className={styles.post_header}>
-          <h3>
-            <span className={styles.post_headerUser}>@{props.username}</span>
-            <span className={styles.post_headerTime}>
-              {props.timestamp &&
-                new Date(props.timestamp.toDate()).toLocaleString()}
-            </span>
-          </h3>
+      <div className={styles.post_body}>
+        <div>
+          <div className={styles.post_header}>
+            <h3>
+              <span className={styles.post_headerUser}>@{props.username}</span>
+              <span className={styles.post_headerTime}>
+                {props.timestamp &&
+                  new Date(props.timestamp.toDate()).toLocaleString()}
+              </span>
+            </h3>
+          </div>
+          <div className={styles.post_tweet}>
+            <p>{props.text}</p>
+          </div>
         </div>
-        <div className={styles.post_tweet}>
-          <p>{props.text}</p>
-        </div>
+        {props.image && (
+          <div className={styles.post_tweetImage}>
+            <img src={props.image} alt="tweet" />
+          </div>
+        )}
+        <MessageIcon
+          className={styles.post_commentIcon}
+          onClick={() => setOpenComments(!openComments)}
+        />
+        {openComments && (
+          <>
+            {comments.map(com => (
+              <div key={com.id} className={styles.post_comment}>
+                <Avatar src={com.avatar} className={classes.small} />
+                <span className={styles.post_commentUser}>@{com.username}</span>
+                <span className={styles.post_commentText}>{com.text}</span>
+                <span className={styles.post_headerTime}>
+                  {com.timestamp &&
+                    new Date(com.timestamp.toDate()).toLocaleString()}
+                </span>
+              </div>
+            ))}
+
+            <form onSubmit={newComment}>
+              <div className={styles.post_form}>
+                <input
+                  className={styles.post_input}
+                  type="text"
+                  placeholder="Add new comment..."
+                  value={comment}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setComment(e.target.value)
+                  }
+                />
+                <button
+                  disabled={!comment}
+                  className={
+                    comment ? styles.post_button : styles.post_buttonDisable
+                  }
+                  type="submit"
+                >
+                  <SendIcon className={styles.post_sendIcon} />
+                </button>
+              </div>
+            </form>
+          </>
+        )}
       </div>
-      {props.image && (
-        <div className={styles.post_tweetImage}>
-          <img src={props.image} alt="tweet" />
-        </div>
-      )}
-
-      {comments.map(com => (
-        <div key={com.id} className={styles.post_comment}>
-          <Avatar src={com.avatar} />
-          <span className={styles.post_commentUser}>@{com.username}</span>
-          <span className={styles.post_commentText}>{com.text}</span>
-          <span className={styles.post_headerTime}>
-            {com.timestamp && new Date(com.timestamp.toDate()).toLocaleString()}
-          </span>
-        </div>
-      ))}
-
-      <form onSubmit={newComment}>
-        <div className={styles.post_form}>
-          <input
-            className={styles.post_input}
-            type="text"
-            placeholder="Add new comment..."
-            value={comment}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setComment(e.target.value)
-            }
-          />
-          <button
-            disabled={!comment}
-            className={comment ? styles.post_button : styles.post_buttonDisable}
-            type="submit"
-          >
-            <SendIcon className={styles.post_sendIcon} />
-          </button>
-        </div>
-      </form>
     </div>
   )
 }
