@@ -8,10 +8,9 @@ import { selectUser } from '../features/userSlice'
 //styles
 import styles from './Post.module.css'
 import { Avatar } from '@material-ui/core'
-import { makeStyles, styled } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import MessageIcon from '@material-ui/icons/Message'
 import SendIcon from '@material-ui/icons/Send'
-import { PersonPinSharp } from '@material-ui/icons'
 
 interface PROPS {
   postId: string
@@ -53,30 +52,29 @@ const Post: React.FC<PROPS> = props => {
   ])
   const [openComments, setOpenComments] = useState(false)
 
-  //   if (!props.postId) {
-  //     console.log('投稿がありません')
-  //   } else {
-  //     const getComments = db
-  //       .collection('posts')
-  //       .doc(props.postId)
-  //       .collection('comments')
-  //       .orderBy('timestamp', 'desc')
-  //       .onSnapshot(snapshot =>
-  //         setComments(
-  //           snapshot.docs.map(doc => ({
-  //             id: doc.id,
-  //             avatar: doc.data().avatar,
-  //             text: doc.data().text,
-  //             timestamp: doc.data().timestamp,
-  //             username: doc.data().username
-  //           }))
-  //         )
-  //       )
-  //     console.log('確認点')
-  //     useEffect(() => {
-  //       getComments()
-  //     }, [props.postId])
-  //   }
+  if (!props.postId) {
+    alert('投稿がありません')
+  } else {
+    const getComments = db
+      .collection('posts')
+      .doc(props.postId)
+      .collection('comments')
+      .orderBy('timestamp', 'desc')
+      .onSnapshot(snapshot =>
+        setComments(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            avatar: doc.data().avatar,
+            text: doc.data().text,
+            timestamp: doc.data().timestamp,
+            username: doc.data().username
+          }))
+        )
+      )
+    useEffect(() => {
+      getComments()
+    }, [props.postId])
+  }
 
   const newComment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -92,11 +90,11 @@ const Post: React.FC<PROPS> = props => {
     setComment('')
   }
 
-  //   const formattedData = () => {
-  //     const date = new Date(props.timestamp)
-  //     return `${date.getFullYear()}月${date.getMonth() + 1}月${date.getDay()}日`
-  //   }
-  //   console.log(formattedData())
+  const formattedTimestamp = (timestamp: any): string | null => {
+    if (!timestamp) return null
+
+    return new Date(timestamp.toDate()).toLocaleString()
+  }
 
   return (
     <div className={styles.post}>
@@ -109,8 +107,7 @@ const Post: React.FC<PROPS> = props => {
             <h3>
               <span className={styles.post_headerUser}>@{props.username}</span>
               <span className={styles.post_headerTime}>
-                {props.timestamp &&
-                  new Date(props.timestamp.toDate()).toLocaleString()}
+                {formattedTimestamp(props.timestamp)}
               </span>
             </h3>
           </div>
@@ -135,8 +132,7 @@ const Post: React.FC<PROPS> = props => {
                 <span className={styles.post_commentUser}>@{com.username}</span>
                 <span className={styles.post_commentText}>{com.text}</span>
                 <span className={styles.post_headerTime}>
-                  {com.timestamp &&
-                    new Date(com.timestamp.toDate()).toLocaleString()}
+                  {formattedTimestamp(com.timestamp)}
                 </span>
               </div>
             ))}
