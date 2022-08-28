@@ -38,6 +38,8 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Post: React.FC<PROPS> = (props) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [isError, setIsError] = useState(false)
   const user = useSelector(selectUser)
   const classes = useStyles()
   const [comment, setComment] = useState('')
@@ -53,26 +55,37 @@ const Post: React.FC<PROPS> = (props) => {
   const [openComments, setOpenComments] = useState(false)
 
   const getComments = useCallback(() => {
-    db.collection('posts')
-      .doc(props.postId)
-      .collection('comments')
-      .orderBy('timestamp', 'desc')
-      .onSnapshot((snapshot) =>
-        setComments(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            avatar: doc.data().avatar,
-            text: doc.data().text,
-            timestamp: doc.data().timestamp,
-            username: doc.data().username,
-          }))
-        )
-      )
+    if (props.postId) {
+      try {
+        db.collection('posts')
+          .doc(props.postId)
+          .collection('comments')
+          .orderBy('timestamp', 'desc')
+          .onSnapshot((snapshot) =>
+            setComments(
+              snapshot.docs.map((doc) => ({
+                id: doc.id,
+                avatar: doc.data().avatar,
+                text: doc.data().text,
+                timestamp: doc.data().timestamp,
+                username: doc.data().username,
+              }))
+            )
+          )
+      } catch (error) {
+        setIsError(true)
+      } finally {
+        setIsLoading(false)
+      }
+    }
   }, [props.postId])
 
   useEffect(() => {
     getComments()
   }, [props.postId, getComments])
+
+  if (isLoading) return <p>...Loading</p>
+  if (isError) return <p>予期せぬエラーです</p>
 
   const newComment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
