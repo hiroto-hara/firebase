@@ -1,5 +1,5 @@
 //lib
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { db } from '../firebase'
 import firebase from 'firebase/app'
 import { useSelector } from 'react-redux'
@@ -29,15 +29,15 @@ interface COMMENT {
   username: string
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   small: {
     width: theme.spacing(3),
     height: theme.spacing(3),
-    marginRight: theme.spacing(1)
-  }
+    marginRight: theme.spacing(1),
+  },
 }))
 
-const Post: React.FC<PROPS> = props => {
+const Post: React.FC<PROPS> = (props) => {
   const user = useSelector(selectUser)
   const classes = useStyles()
   const [comment, setComment] = useState('')
@@ -47,46 +47,41 @@ const Post: React.FC<PROPS> = props => {
       avatar: '',
       text: '',
       timestamp: null,
-      username: ''
-    }
+      username: '',
+    },
   ])
   const [openComments, setOpenComments] = useState(false)
 
-  if (!props.postId) {
-    alert('投稿がありません')
-  } else {
-    const getComments = db
-      .collection('posts')
+  const getComments = useCallback(() => {
+    db.collection('posts')
       .doc(props.postId)
       .collection('comments')
       .orderBy('timestamp', 'desc')
-      .onSnapshot(snapshot =>
+      .onSnapshot((snapshot) =>
         setComments(
-          snapshot.docs.map(doc => ({
+          snapshot.docs.map((doc) => ({
             id: doc.id,
             avatar: doc.data().avatar,
             text: doc.data().text,
             timestamp: doc.data().timestamp,
-            username: doc.data().username
+            username: doc.data().username,
           }))
         )
       )
-    useEffect(() => {
-      getComments()
-    }, [props.postId])
-  }
+  }, [props.postId])
+
+  useEffect(() => {
+    getComments()
+  }, [props.postId, getComments])
 
   const newComment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    db.collection('posts')
-      .doc(props.postId)
-      .collection('comments')
-      .add({
-        avatar: user.photoUrl,
-        text: comment,
-        timestamp: firebase.firestore.Timestamp.now(),
-        username: user.displayName
-      })
+    db.collection('posts').doc(props.postId).collection('comments').add({
+      avatar: user.photoUrl,
+      text: comment,
+      timestamp: firebase.firestore.Timestamp.now(),
+      username: user.displayName,
+    })
     setComment('')
   }
 
@@ -126,7 +121,7 @@ const Post: React.FC<PROPS> = props => {
         />
         {openComments && (
           <>
-            {comments.map(com => (
+            {comments.map((com) => (
               <div key={com.id} className={styles.post_comment}>
                 <Avatar src={com.avatar} className={classes.small} />
                 <span className={styles.post_commentUser}>@{com.username}</span>
